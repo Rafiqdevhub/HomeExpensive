@@ -1,50 +1,103 @@
-# Welcome to your Expo app 👋
+# homeXpense - Personal Finance Tracker
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, beautifully designed personal finance tracking application built with React Native and Expo. homeXpense helps you manage your expenses, set budgets, and track your spending with an intuitive and user-friendly interface.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 📊 **Dashboard Overview**: Get a quick glance at your financial status with beautiful visualizations
+- 💰 **Expense Tracking**: Easily log and categorize your daily expenses
+- 🎯 **Budget Management**: Set and monitor budgets for different expense categories
+- 📱 **Modern UI/UX**: Sleek design with smooth animations and interactions
+- 🌓 **Theme Support**: Automatic light/dark theme based on system preferences
+- 💾 **Data Persistence**: Local storage for all your financial data
+- 📊 **Category Management**: Pre-defined expense categories with custom icons and colors
+
+## Tech Stack
+
+- React Native with Expo
+- TypeScript for type safety
+- Expo Router for navigation
+- NativeWind (TailwindCSS) for styling
+- React Native Reanimated for animations
+- Expo Blur for glass-morphism effects
+- AsyncStorage for data persistence
+- Context API for state management
+
+## Getting Started
+
+1. Clone the repository
+
+   ```bash
+   git clone
+   cd homeXpense
+   ```
+
+2. Install dependencies
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Start the development server
 
    ```bash
-    npx expo start
+   npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. Run on your preferred platform:
+   - Press 'a' for Android
+   - Press 'i' for iOS
+   - Press 'w' for web
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Project Structure
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+homeXpense/
+├── app/                   # Main application code
+│   ├── (tabs)/           # Tab-based navigation screens
+│   │   ├── index.tsx     # Dashboard screen
+│   │   ├── expenses.tsx  # Expenses management
+│   │   ├── budget.tsx    # Budget tracking
+│   │   └── settings.tsx  # App settings
+│   └── _layout.tsx       # Root layout configuration
+├── src/
+│   └── context/          # Application context providers
+│       ├── ExpenseContext.tsx  # Expense management logic
+│       └── ThemeContext.tsx    # Theme management
+└── assets/               # Static assets
+    └── images/          # App images and icons
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Features in Detail
 
-## Learn more
+### Dashboard
 
-To learn more about developing your project with Expo, look at the following resources:
+- Overview of total budget and expenses
+- Quick access to recent transactions
+- Visual representation of spending patterns
+- Quick action buttons for common tasks
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Expense Management
 
-## Join the community
+- Add new expenses with categories
+- View expense history by date
+- Delete unwanted expense entries
+- Categorize expenses with custom icons
 
-Join our community of developers creating universal apps.
+### Budget Tracking
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Set budgets for different categories
+- Visual progress bars for budget utilization
+- Warnings for near-budget and over-budget situations
+- Monthly budget overview
+
+### Settings
+
+- Data export/import functionality
+- Clear all data option
+- App customization options
+- Version information
+
+## Contributing
+
+We welcome contributions! Please feel free to submit a Pull Request.
