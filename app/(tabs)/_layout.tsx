@@ -4,14 +4,17 @@ import { BlurView } from "expo-blur";
 import { View, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated from "react-native-reanimated";
+import { useTheme } from "../../src/context/ThemeContext";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 export default function TabLayout() {
+  const { theme, colors } = useTheme();
+
   return (
     <SafeAreaView
       edges={["bottom"]}
-      style={{ flex: 1, backgroundColor: "#f8fafc" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
       <Tabs
         screenOptions={{
@@ -32,7 +35,7 @@ export default function TabLayout() {
           tabBarBackground: () => (
             <AnimatedBlurView
               intensity={Platform.OS === "ios" ? 60 : 100}
-              tint="light"
+              tint={theme}
               style={{
                 position: "absolute",
                 top: 0,
@@ -41,20 +44,20 @@ export default function TabLayout() {
                 bottom: 0,
                 borderRadius: 24,
                 overflow: "hidden",
-                backgroundColor: "rgba(255, 255, 255, 0.7)",
+                backgroundColor: colors.card,
                 shadowColor: "#000",
                 shadowOffset: {
                   width: 0,
                   height: 4,
                 },
-                shadowOpacity: 0.1,
+                shadowOpacity: theme === "dark" ? 0.3 : 0.1,
                 shadowRadius: 12,
                 elevation: 5,
               }}
             />
           ),
-          tabBarActiveTintColor: "#3b82f6",
-          tabBarInactiveTintColor: "#94a3b8",
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textSecondary,
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: Platform.OS === "ios" ? "600" : "500",
@@ -73,7 +76,7 @@ export default function TabLayout() {
               <View
                 style={{
                   backgroundColor: focused
-                    ? "rgba(59, 130, 246, 0.1)"
+                    ? `${colors.primary}20`
                     : "transparent",
                   padding: 8,
                   borderRadius: 12,
@@ -93,7 +96,7 @@ export default function TabLayout() {
               <View
                 style={{
                   backgroundColor: focused
-                    ? "rgba(59, 130, 246, 0.1)"
+                    ? `${colors.primary}20`
                     : "transparent",
                   padding: 8,
                   borderRadius: 12,
@@ -117,7 +120,7 @@ export default function TabLayout() {
               <View
                 style={{
                   backgroundColor: focused
-                    ? "rgba(59, 130, 246, 0.1)"
+                    ? `${colors.primary}20`
                     : "transparent",
                   padding: 8,
                   borderRadius: 12,
@@ -137,7 +140,7 @@ export default function TabLayout() {
               <View
                 style={{
                   backgroundColor: focused
-                    ? "rgba(59, 130, 246, 0.1)"
+                    ? `${colors.primary}20`
                     : "transparent",
                   padding: 8,
                   borderRadius: 12,

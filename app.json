@@ -7,22 +7,30 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#f8fafc",
     "newArchEnabled": true,
     "androidStatusBar": {
       "backgroundColor": "#00000000",
-      "translucent": true
+      "translucent": true,
+      "barStyle": "dark-content"
     },
     "androidNavigationBar": {
-      "backgroundColor": "#00000000"
+      "backgroundColor": "#00000000",
+      "barStyle": "dark-content"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSDocumentsFolderUsageDescription": "This app needs access to documents directory to save PDF reports.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to save PDF reports to your photo library."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#f8fafc"
+      },
+      "permissions": ["WRITE_EXTERNAL_STORAGE", "READ_EXTERNAL_STORAGE"]
     },
     "web": {
       "bundler": "metro",
@@ -37,7 +45,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#f8fafc"
         }
       ]
     ],

@@ -61,6 +61,8 @@ type Budget = {
   amount: number;
 };
 
+const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined);
+
 type ExpenseContextType = {
   expenses: Expense[];
   budgets: Budget[];
@@ -72,9 +74,8 @@ type ExpenseContextType = {
   getExpensesByCategory: (category: string) => Expense[];
   getBudgetByCategory: (category: string) => Budget | undefined;
   getCategories: () => typeof CATEGORIES;
+  reset: () => Promise<void>; // Add this line
 };
-
-const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined);
 
 const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -145,6 +146,17 @@ const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
 
   const getCategories = () => CATEGORIES;
 
+  const reset = async () => {
+    try {
+      await AsyncStorage.clear();
+      setExpenses([]);
+      setBudgets([]);
+    } catch (error) {
+      console.error("Error resetting data:", error);
+      throw error;
+    }
+  };
+
   return (
     <ExpenseContext.Provider
       value={{
@@ -158,6 +170,7 @@ const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
         getExpensesByCategory,
         getBudgetByCategory,
         getCategories,
+        reset, // Add this line
       }}
     >
       {children}

@@ -1,27 +1,32 @@
 import { Stack } from "expo-router";
 import { ExpenseProvider } from "../src/context/ExpenseContext";
-import { ThemeProvider } from "../src/context/ThemeContext";
+import { ThemeProvider, useTheme } from "../src/context/ThemeContext";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useColorScheme } from "react-native";
 import "./global.css";
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function RootLayoutNav() {
+  const { theme, colors } = useTheme();
 
+  return (
+    <SafeAreaProvider>
+      <StatusBar
+        style={theme === "dark" ? "light" : "dark"}
+        backgroundColor="transparent"
+        translucent
+      />
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+    </SafeAreaProvider>
+  );
+}
+
+export default function RootLayout() {
   return (
     <ThemeProvider>
       <ExpenseProvider>
-        <SafeAreaProvider>
-          <StatusBar
-            style={colorScheme === "dark" ? "light" : "dark"}
-            translucent={true}
-            backgroundColor="transparent"
-          />
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-        </SafeAreaProvider>
+        <RootLayoutNav />
       </ExpenseProvider>
     </ThemeProvider>
   );
