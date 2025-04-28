@@ -28,8 +28,8 @@ A modern, beautifully designed personal finance tracking application built with 
 1. Clone the repository
 
    ```bash
-   git clone
-   cd homeXpense
+   git clone https://github.com/Rafiqdevhub/HomeExpensive.git
+   cd HomeExpensive
    ```
 
 2. Install dependencies
