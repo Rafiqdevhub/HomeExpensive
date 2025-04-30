@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -74,7 +74,7 @@ type ExpenseContextType = {
   getExpensesByCategory: (category: string) => Expense[];
   getBudgetByCategory: (category: string) => Budget | undefined;
   getCategories: () => typeof CATEGORIES;
-  reset: () => Promise<void>; // Add this line
+  reset: () => Promise<void>;
 };
 
 const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
@@ -170,7 +170,7 @@ const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
         getExpensesByCategory,
         getBudgetByCategory,
         getCategories,
-        reset, // Add this line
+        reset,
       }}
     >
       {children}
@@ -186,6 +186,5 @@ const useExpense = () => {
   return context;
 };
 
-// Export the context component as default
 export default ExpenseContext;
 export { ExpenseProvider, useExpense };

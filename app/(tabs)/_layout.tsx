@@ -22,14 +22,14 @@ export default function TabLayout() {
           tabBarShowLabel: true,
           tabBarStyle: {
             position: "absolute",
-            bottom: Platform.OS === "ios" ? 24 : 16,
-            left: 16,
-            right: 16,
+            bottom: 0,
+            left: 0,
+            right: 0,
             elevation: 0,
             backgroundColor: "transparent",
-            borderRadius: 24,
-            height: 65,
-            paddingBottom: Platform.OS === "ios" ? 20 : 12,
+            height: Platform.OS === "ios" ? 85 : 65,
+            paddingBottom: Platform.OS === "ios" ? 20 : 8,
+            paddingTop: 8,
             borderTopWidth: 0,
           },
           tabBarBackground: () => (
@@ -42,17 +42,21 @@ export default function TabLayout() {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                borderRadius: 24,
                 overflow: "hidden",
                 backgroundColor: colors.card,
+                borderTopWidth: 0.5,
+                borderTopColor:
+                  theme === "dark"
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(0,0,0,0.1)",
                 shadowColor: "#000",
                 shadowOffset: {
                   width: 0,
-                  height: 4,
+                  height: -2,
                 },
-                shadowOpacity: theme === "dark" ? 0.3 : 0.1,
-                shadowRadius: 12,
-                elevation: 5,
+                shadowOpacity: theme === "dark" ? 0.2 : 0.1,
+                shadowRadius: 3,
+                elevation: 10,
               }}
             />
           ),
@@ -60,8 +64,8 @@ export default function TabLayout() {
           tabBarInactiveTintColor: colors.textSecondary,
           tabBarLabelStyle: {
             fontSize: 12,
-            fontWeight: Platform.OS === "ios" ? "600" : "500",
-            marginTop: -5,
+            fontWeight: "500",
+            marginTop: 4,
           },
           tabBarIconStyle: {
             marginTop: 4,
