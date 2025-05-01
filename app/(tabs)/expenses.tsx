@@ -45,6 +45,7 @@ export default function Expenses() {
     deleteExpense,
     getTotalExpenses,
     getCategories,
+    formatCurrency,
   } = useExpense();
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState("");
@@ -107,9 +108,9 @@ export default function Expenses() {
   );
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-gray-50">
+    <SafeAreaView edges={["top"]} style={{ flex: 1 }} className="bg-gray-50">
       <ScrollView className="flex-1">
-        <View className="px-4 pt-12 pb-32">
+        <View className="px-4 pb-32">
           {/* Header with gradient background */}
           <LinearGradient
             colors={["rgba(239, 68, 68, 0.1)", "transparent"]}
@@ -131,24 +132,26 @@ export default function Expenses() {
             entering={FadeInDown.delay(400).springify()}
             className="rounded-2xl overflow-hidden mb-8"
           >
-            <BlurView intensity={30} tint="light">
-              <LinearGradient
-                colors={["#ef4444", "#f87171"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="p-6 shadow-lg"
-              >
-                <Text className="text-white text-lg opacity-80 mb-3">
-                  Total Expenses
-                </Text>
-                <Animated.Text
-                  entering={FadeInUp.delay(600).springify()}
-                  className="text-white text-4xl font-bold"
+            <View>
+              <BlurView intensity={30} tint="light">
+                <LinearGradient
+                  colors={["#ef4444", "#f87171"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  className="p-6 shadow-lg"
                 >
-                  Rs{totalExpenses}
-                </Animated.Text>
-              </LinearGradient>
-            </BlurView>
+                  <Text className="text-white text-lg opacity-80 mb-3">
+                    Total Expenses
+                  </Text>
+                  <Animated.Text
+                    entering={FadeInUp.delay(600).springify()}
+                    className="text-white text-4xl font-bold"
+                  >
+                    {formatCurrency(totalExpenses)}
+                  </Animated.Text>
+                </LinearGradient>
+              </BlurView>
+            </View>
           </Animated.View>
 
           {/* Expenses List */}
@@ -209,7 +212,7 @@ export default function Expenses() {
                       </View>
                       <View className="flex-row items-center">
                         <Text className="font-semibold text-red-500 text-base mr-3">
-                          Rs{expense.amount}
+                          {formatCurrency(expense.amount)}
                         </Text>
                         <TouchableOpacity
                           onPress={() => handleDeleteExpense(expense.id)}
@@ -270,148 +273,161 @@ export default function Expenses() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <BlurView intensity={20} tint="dark" className="flex-1">
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            className="flex-1"
-          >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-              <Animated.View
-                entering={FadeInUp.springify()}
-                className="flex-1 justify-end"
+        <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}>
+            <BlurView intensity={20} tint="dark" style={{ flex: 1 }}>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                className="flex-1"
               >
-                <ScrollView bounces={false}>
-                  <View className="bg-white rounded-t-3xl p-6 min-h-[60%]">
-                    <View className="flex-row justify-between items-center mb-6">
-                      <Text className="text-2xl font-bold text-gray-800">
-                        Add Expense
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => setModalVisible(false)}
-                        className="bg-gray-100 rounded-full p-2"
-                      >
-                        <MaterialIcons name="close" size={24} color="#374151" />
-                      </TouchableOpacity>
-                    </View>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                  <Animated.View
+                    entering={FadeInUp.springify()}
+                    className="flex-1 justify-end"
+                  >
+                    <ScrollView bounces={false}>
+                      <View className="bg-white rounded-t-3xl p-6 min-h-[60%]">
+                        <View className="flex-row justify-between items-center mb-6">
+                          <Text className="text-2xl font-bold text-gray-800">
+                            Add Expense
+                          </Text>
+                          <TouchableOpacity
+                            onPress={() => setModalVisible(false)}
+                            className="bg-gray-100 rounded-full p-2"
+                          >
+                            <MaterialIcons
+                              name="close"
+                              size={24}
+                              color="#374151"
+                            />
+                          </TouchableOpacity>
+                        </View>
 
-                    <View className="space-y-6">
-                      <View>
-                        <Text className="text-gray-600 mb-2 font-medium">
-                          Amount
-                        </Text>
-                        <TextInput
-                          className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-lg"
-                          keyboardType="numeric"
-                          value={amount}
-                          onChangeText={setAmount}
-                          placeholder="0.00"
-                          placeholderTextColor="#9ca3af"
-                        />
-                      </View>
+                        <View className="space-y-6">
+                          <View>
+                            <Text className="text-gray-600 mb-2 font-medium">
+                              Amount
+                            </Text>
+                            <TextInput
+                              className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-lg"
+                              keyboardType="numeric"
+                              value={amount}
+                              onChangeText={setAmount}
+                              placeholder="0.00"
+                              placeholderTextColor="#9ca3af"
+                            />
+                          </View>
 
-                      <View>
-                        <Text className="text-gray-600 mb-2 font-medium">
-                          Description
-                        </Text>
-                        <TextInput
-                          className="bg-gray-50 border border-gray-200 rounded-xl p-4"
-                          value={description}
-                          onChangeText={setDescription}
-                          placeholder="What did you spend on?"
-                          placeholderTextColor="#9ca3af"
-                        />
-                      </View>
+                          <View>
+                            <Text className="text-gray-600 mb-2 font-medium">
+                              Description
+                            </Text>
+                            <TextInput
+                              className="bg-gray-50 border border-gray-200 rounded-xl p-4"
+                              value={description}
+                              onChangeText={setDescription}
+                              placeholder="What did you spend on?"
+                              placeholderTextColor="#9ca3af"
+                            />
+                          </View>
 
-                      <View>
-                        <Text className="text-gray-600 mb-4 font-medium">
-                          Category
-                        </Text>
-                        <ScrollView
-                          horizontal
-                          showsHorizontalScrollIndicator={false}
-                          contentContainerStyle={{
-                            paddingLeft: 8,
-                            paddingRight: 24,
-                          }}
-                          className="flex-row"
-                        >
-                          {categories.map((cat, index) => (
-                            <Animated.View
-                              key={cat.name}
-                              entering={FadeInRight.delay(
-                                200 + index * 100
-                              ).springify()}
-                              className="mr-3"
+                          <View>
+                            <Text className="text-gray-600 mb-4 font-medium">
+                              Category
+                            </Text>
+                            <ScrollView
+                              horizontal
+                              showsHorizontalScrollIndicator={false}
+                              contentContainerStyle={{
+                                paddingLeft: 8,
+                                paddingRight: 24,
+                              }}
+                              className="flex-row"
                             >
-                              <TouchableOpacity
-                                onPress={() => handleCategoryPress(cat.name)}
-                                style={{
-                                  transform: [
-                                    { scale: category === cat.name ? 1.05 : 1 },
-                                  ],
-                                }}
-                                className="transition-all duration-200"
-                              >
-                                <BlurView
-                                  intensity={30}
-                                  tint="light"
-                                  className={`rounded-2xl overflow-hidden ${
-                                    category === cat.name
-                                      ? "border-2 border-blue-500 shadow-lg shadow-blue-500/50"
-                                      : "border border-gray-200"
-                                  }`}
+                              {categories.map((cat, index) => (
+                                <Animated.View
+                                  key={cat.name}
+                                  entering={FadeInRight.delay(
+                                    200 + index * 100
+                                  ).springify()}
+                                  className="mr-3"
                                 >
-                                  <LinearGradient
-                                    colors={cat.gradient}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 1 }}
-                                    className="p-4 items-center min-w-[110px]"
+                                  <TouchableOpacity
+                                    onPress={() =>
+                                      handleCategoryPress(cat.name)
+                                    }
+                                    style={{
+                                      transform: [
+                                        {
+                                          scale:
+                                            category === cat.name ? 1.05 : 1,
+                                        },
+                                      ],
+                                    }}
+                                    className="transition-all duration-200"
                                   >
                                     <View
-                                      className={`w-12 h-12 rounded-xl items-center justify-center mb-3 ${
+                                      className={`rounded-2xl overflow-hidden ${
                                         category === cat.name
-                                          ? "bg-white/20"
-                                          : "bg-white/10"
+                                          ? "border-2 border-blue-500 shadow-lg shadow-blue-500/50"
+                                          : "border border-gray-200"
                                       }`}
                                     >
-                                      <MaterialIcons
-                                        name={cat.icon}
-                                        size={24}
-                                        color="white"
-                                      />
+                                      <BlurView intensity={30} tint="light">
+                                        <LinearGradient
+                                          colors={cat.gradient}
+                                          start={{ x: 0, y: 0 }}
+                                          end={{ x: 1, y: 1 }}
+                                          className="p-4 items-center min-w-[110px]"
+                                        >
+                                          <View
+                                            className={`w-12 h-12 rounded-xl items-center justify-center mb-3 ${
+                                              category === cat.name
+                                                ? "bg-white/20"
+                                                : "bg-white/10"
+                                            }`}
+                                          >
+                                            <MaterialIcons
+                                              name={cat.icon}
+                                              size={24}
+                                              color="white"
+                                            />
+                                          </View>
+                                          <Text
+                                            className={`text-white font-semibold text-center ${
+                                              category === cat.name
+                                                ? "text-base"
+                                                : "text-sm opacity-90"
+                                            }`}
+                                          >
+                                            {cat.name}
+                                          </Text>
+                                        </LinearGradient>
+                                      </BlurView>
                                     </View>
-                                    <Text
-                                      className={`text-white font-semibold text-center ${
-                                        category === cat.name
-                                          ? "text-base"
-                                          : "text-sm opacity-90"
-                                      }`}
-                                    >
-                                      {cat.name}
-                                    </Text>
-                                  </LinearGradient>
-                                </BlurView>
-                              </TouchableOpacity>
-                            </Animated.View>
-                          ))}
-                        </ScrollView>
-                      </View>
+                                  </TouchableOpacity>
+                                </Animated.View>
+                              ))}
+                            </ScrollView>
+                          </View>
 
-                      <TouchableOpacity
-                        onPress={handleAddExpense}
-                        className="bg-red-500 p-4 rounded-xl mt-6"
-                      >
-                        <Text className="text-white text-center text-lg font-semibold">
-                          Add Expense
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </ScrollView>
-              </Animated.View>
-            </TouchableWithoutFeedback>
-          </KeyboardAvoidingView>
-        </BlurView>
+                          <TouchableOpacity
+                            onPress={handleAddExpense}
+                            className="bg-red-500 p-4 rounded-xl mt-6"
+                          >
+                            <Text className="text-white text-center text-lg font-semibold">
+                              Add Expense
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </ScrollView>
+                  </Animated.View>
+                </TouchableWithoutFeedback>
+              </KeyboardAvoidingView>
+            </BlurView>
+          </View>
+        </View>
       </Modal>
     </SafeAreaView>
   );

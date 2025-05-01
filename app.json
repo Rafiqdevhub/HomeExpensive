@@ -10,7 +10,7 @@
     "backgroundColor": "#ffffff",
     "newArchEnabled": true,
     "androidStatusBar": {
-      "backgroundColor": "#ffffff",
+      "backgroundColor": "transparent",
       "translucent": true,
       "barStyle": "dark-content"
     },
@@ -22,7 +22,9 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSDocumentsFolderUsageDescription": "This app needs access to documents directory to save PDF reports.",
-        "NSPhotoLibraryUsageDescription": "This app needs access to save PDF reports to your photo library."
+        "NSPhotoLibraryUsageDescription": "This app needs access to save PDF reports to your photo library.",
+        "UIViewControllerBasedStatusBarAppearance": true,
+        "UIStatusBarStyle": "UIStatusBarStyleDarkContent"
       }
     },
     "android": {

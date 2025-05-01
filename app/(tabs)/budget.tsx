@@ -28,8 +28,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 
 export default function Budget() {
-  const { budgets, addBudget, getExpensesByCategory, getCategories } =
-    useExpense();
+  const {
+    budgets,
+    addBudget,
+    getExpensesByCategory,
+    getCategories,
+    formatCurrency,
+  } = useExpense();
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0].name);
@@ -77,9 +82,9 @@ export default function Budget() {
   const totalBudget = budgets.reduce((sum, budget) => sum + budget.amount, 0);
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-gray-50">
+    <SafeAreaView edges={["top"]} style={{ flex: 1 }} className="bg-gray-50">
       <ScrollView className="flex-1">
-        <View className="px-4 pt-12 pb-32">
+        <View className="px-4 pb-32">
           {/* Header with gradient background */}
           <LinearGradient
             colors={["rgba(59, 130, 246, 0.1)", "transparent"]}
@@ -112,7 +117,7 @@ export default function Budget() {
                   Total Budget
                 </Text>
                 <Text className="text-white text-4xl font-bold">
-                  Rs{totalBudget}
+                  {formatCurrency(totalBudget)}
                 </Text>
               </LinearGradient>
             </BlurView>
@@ -171,8 +176,8 @@ export default function Budget() {
                             </Text>
                             {hasBudget && (
                               <Text className="text-gray-500 text-sm">
-                                Rs{utilization.amount} / Rs
-                                {utilization.budgetAmount}
+                                {formatCurrency(utilization.amount)} /{" "}
+                                {formatCurrency(utilization.budgetAmount)}
                               </Text>
                             )}
                           </View>

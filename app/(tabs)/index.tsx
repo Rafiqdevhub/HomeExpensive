@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import Animated, {
   FadeInDown,
   FadeInRight,
@@ -9,15 +15,21 @@ import Animated, {
   withDelay,
 } from "react-native-reanimated";
 import { useExpense } from "../../src/context/ExpenseContext";
+import { useUser } from "../../src/context/UserContext";
 import { format } from "date-fns";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 export default function Dashboard() {
-  const { expenses, getTotalExpenses, budgets } = useExpense();
+  const { expenses, getTotalExpenses, budgets, formatCurrency } = useExpense();
+  const { userProfile } = useUser();
+  const insets = useSafeAreaInsets();
 
   const recentExpenses = [...expenses]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -27,12 +39,33 @@ export default function Dashboard() {
   const totalExpenses = getTotalExpenses();
   const remainingBudget = totalBudget - totalExpenses;
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
-  };
+  // Calculate this month's vs last month's expenses
+  const today = new Date();
+  const thisMonth = today.getMonth();
+  const thisYear = today.getFullYear();
+
+  const thisMonthExpenses = expenses.reduce((sum, exp) => {
+    const expDate = new Date(exp.date);
+    return expDate.getMonth() === thisMonth &&
+      expDate.getFullYear() === thisYear
+      ? sum + exp.amount
+      : sum;
+  }, 0);
+
+  const lastMonthExpenses = expenses.reduce((sum, exp) => {
+    const expDate = new Date(exp.date);
+    const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+    const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+    return expDate.getMonth() === lastMonth &&
+      expDate.getFullYear() === lastMonthYear
+      ? sum + exp.amount
+      : sum;
+  }, 0);
+
+  const expenseChange =
+    lastMonthExpenses === 0
+      ? 100
+      : ((thisMonthExpenses - lastMonthExpenses) / lastMonthExpenses) * 100;
 
   const welcomeOpacity = useSharedValue(0);
   const welcomeTranslateY = useSharedValue(20);
@@ -57,9 +90,15 @@ export default function Dashboard() {
   }));
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-gray-50">
-      <ScrollView className="flex-1">
-        <View className="px-4 pt-12 pb-32">
+    <View style={{ flex: 1, backgroundColor: "rgba(243, 244, 246, 1)" }}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{
+          paddingTop: Math.max(insets.top, 16), // Ensure minimum padding even without notch
+          paddingBottom: 32 + (Platform.OS === "ios" ? insets.bottom : 0),
+        }}
+      >
+        <View className="px-4 pb-32">
           {/* Header with gradient background */}
           <LinearGradient
             colors={["rgba(59, 130, 246, 0.1)", "transparent"]}
@@ -71,19 +110,42 @@ export default function Dashboard() {
               style={welcomeStyle}
               className="text-3xl font-bold text-gray-800"
             >
-              {getGreeting()}, Rafiq! 👋
+              Financial Overview
             </Animated.Text>
             <Animated.Text
               style={subtextStyle}
               className="text-gray-500 text-lg mb-1 mt-2"
             >
-              Track your daily spending with ease
+              {remainingBudget >= 0
+                ? `You have ${formatCurrency(remainingBudget)} left to spend`
+                : `You're over budget by ${formatCurrency(
+                    Math.abs(remainingBudget)
+                  )}`}
             </Animated.Text>
+            <View className="flex-row items-center mt-1">
+              <MaterialIcons
+                name={expenseChange > 0 ? "trending-up" : "trending-down"}
+                size={16}
+                color={expenseChange > 0 ? "#ef4444" : "#22c55e"}
+                style={{ marginRight: 4 }}
+              />
+              <Animated.Text
+                style={subtextStyle}
+                className={`text-sm ${
+                  expenseChange > 0 ? "text-red-500" : "text-green-500"
+                }`}
+              >
+                {Math.abs(expenseChange).toFixed(1)}%{" "}
+                {expenseChange > 0 ? "more" : "less"} spending than last month
+              </Animated.Text>
+            </View>
             <Animated.Text
               style={subtextStyle}
               className="text-gray-400 text-base"
             >
-              Set budgets, monitor expenses, and achieve your financial goals
+              {budgets.length > 0
+                ? `Tracking ${budgets.length} budget categories`
+                : "Set up your first budget to start tracking"}
             </Animated.Text>
           </View>
 
@@ -115,7 +177,7 @@ export default function Dashboard() {
                     Total Budget
                   </Text>
                   <Text className="text-white text-2xl font-bold">
-                    Rs{totalBudget.toLocaleString()}
+                    {formatCurrency(totalBudget)}
                   </Text>
                   <Text className="text-white text-xs opacity-70 mt-1">
                     {budgets.length}{" "}
@@ -155,7 +217,7 @@ export default function Dashboard() {
                     {remainingBudget >= 0 ? "Remaining" : "Overspent"}
                   </Text>
                   <Text className="text-white text-2xl font-bold">
-                    Rs{Math.abs(remainingBudget).toLocaleString()}
+                    {formatCurrency(Math.abs(remainingBudget))}
                   </Text>
                   <Text className="text-white text-xs opacity-70 mt-1">
                     {remainingBudget >= 0
@@ -192,7 +254,7 @@ export default function Dashboard() {
                       This Month
                     </Text>
                     <Text className="text-white text-lg font-semibold">
-                      Rs{getTotalExpenses().toLocaleString()}
+                      {formatCurrency(getTotalExpenses())}
                     </Text>
                   </LinearGradient>
                 </BlurView>
@@ -392,7 +454,7 @@ export default function Dashboard() {
                 </View>
                 <View className="items-end">
                   <Text className="font-semibold text-red-500 text-base">
-                    -Rs{expense.amount}
+                    -{formatCurrency(expense.amount)}
                   </Text>
                   <Text className="text-gray-400 text-xs">
                     {format(new Date(expense.date), "MMM d")}
@@ -423,6 +485,6 @@ export default function Dashboard() {
           </Animated.View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

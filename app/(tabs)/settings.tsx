@@ -21,11 +21,13 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { useState } from "react";
 import { format } from "date-fns";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Settings() {
   const { expenses, budgets, reset, getCategories } = useExpense();
   const { theme, toggleTheme, colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const generatePDFContent = () => {
     const categories = getCategories();
@@ -304,23 +306,15 @@ export default function Settings() {
   );
 
   return (
-    <SafeAreaView
-      style={{ backgroundColor: colors.background }}
-      className="flex-1"
-    >
-      {isLoading && (
-        <View className="absolute inset-0 bg-black/50 z-50 items-center justify-center">
-          <BlurView intensity={30} tint={theme} className="p-6 rounded-2xl">
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={{ color: colors.text }} className="mt-4">
-              Please wait...
-            </Text>
-          </BlurView>
-        </View>
-      )}
-
-      <ScrollView className="flex-1">
-        <View className="px-4 pt-12 pb-24">
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{
+          paddingTop: Math.max(insets.top, 16),
+          paddingBottom: 32 + (Platform.OS === "ios" ? insets.bottom : 0),
+        }}
+      >
+        <View className="px-4 pb-24">
           {/* Header with gradient background */}
           <LinearGradient
             colors={[`${colors.primary}20`, "transparent"]}
@@ -437,6 +431,17 @@ export default function Settings() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+
+      {isLoading && (
+        <View className="absolute inset-0 bg-black/50 z-50 items-center justify-center">
+          <BlurView intensity={30} tint={theme} className="p-6 rounded-2xl">
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={{ color: colors.text }} className="mt-4">
+              Please wait...
+            </Text>
+          </BlurView>
+        </View>
+      )}
+    </View>
   );
 }

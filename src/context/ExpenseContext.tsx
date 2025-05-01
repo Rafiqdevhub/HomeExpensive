@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useUser } from "./UserContext";
 
 // Move CATEGORIES to context level
 export const CATEGORIES = [
@@ -75,11 +76,13 @@ type ExpenseContextType = {
   getBudgetByCategory: (category: string) => Budget | undefined;
   getCategories: () => typeof CATEGORIES;
   reset: () => Promise<void>;
+  formatCurrency: (amount: number) => string;
 };
 
 const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
+  const { userProfile } = useUser();
 
   useEffect(() => {
     loadData();
@@ -157,6 +160,10 @@ const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return `${userProfile?.currency || "Rs"}${amount.toLocaleString()}`;
+  };
+
   return (
     <ExpenseContext.Provider
       value={{
@@ -171,6 +178,7 @@ const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
         getBudgetByCategory,
         getCategories,
         reset,
+        formatCurrency,
       }}
     >
       {children}
