@@ -16,9 +16,13 @@ function TabIcon({
 
   if (focused) {
     return (
-      <View className="flex flex-row w-full flex-1 min-w-[112px] min-h-14 mt-4 justify-center items-center rounded-full overflow-hidden bg-primary/10">
+      <View className="flex flex-row w-full flex-1 min-w-[112px] min-h-14 mt-4 justify-center items-center rounded-full overflow-hidden">
+        <View className="absolute inset-0 bg-primary/10" />
         <MaterialIcons name={icon} size={20} color={colors.primary} />
-        <Text className="text-primary text-base font-semibold ml-2">
+        <Text
+          style={{ color: colors.primary }}
+          className="text-base font-semibold ml-2"
+        >
           {title}
         </Text>
       </View>
@@ -41,7 +45,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#0F0D23",
+          backgroundColor: colors.card,
           borderRadius: 50,
           marginHorizontal: 20,
           marginBottom: 36,
@@ -49,7 +53,7 @@ export default function TabLayout() {
           position: "absolute",
           overflow: "hidden",
           borderWidth: 1,
-          borderColor: "#0F0D23",
+          borderColor: colors.cardBorder,
           paddingBottom: 0,
         },
       }}
@@ -59,7 +63,7 @@ export default function TabLayout() {
         options={{
           title: "Dashboard",
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="dashboard" title="Home" />
+            <TabIcon focused={focused} icon="widgets" title="Home" />
           ),
         }}
       />
@@ -68,11 +72,7 @@ export default function TabLayout() {
         options={{
           title: "Expenses",
           tabBarIcon: ({ focused }) => (
-            <TabIcon
-              focused={focused}
-              icon="account-balance-wallet"
-              title="Expenses"
-            />
+            <TabIcon focused={focused} icon="receipt-long" title="Expenses" />
           ),
         }}
       />
@@ -81,16 +81,25 @@ export default function TabLayout() {
         options={{
           title: "Budget",
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="pie-chart" title="Budget" />
+            <TabIcon focused={focused} icon="account-balance" title="Budget" />
           ),
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="data"
         options={{
-          title: "Settings",
+          title: "Data",
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="settings" title="Settings" />
+            <TabIcon focused={focused} icon="import-export" title="Data" />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="setting"
+        options={{
+          title: "Setting",
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon="settings" title="Setting" />
           ),
         }}
       />

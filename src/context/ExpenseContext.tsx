@@ -70,6 +70,7 @@ type ExpenseContextType = {
   addExpense: (expense: Omit<Expense, "id">) => void;
   addBudget: (budget: Budget) => void;
   updateBudget: (category: string, amount: number) => void;
+  deleteBudget: (category: string) => void;
   deleteExpense: (id: string) => void;
   getTotalExpenses: () => number;
   getExpensesByCategory: (category: string) => Expense[];
@@ -131,6 +132,10 @@ const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
+  const deleteBudget = (category: string) => {
+    setBudgets(budgets.filter((b) => b.category !== category));
+  };
+
   const deleteExpense = (id: string) => {
     setExpenses(expenses.filter((e) => e.id !== id));
   };
@@ -161,7 +166,7 @@ const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const formatCurrency = (amount: number) => {
-    return `${userProfile?.currency || "Rs"}${amount.toLocaleString()}`;
+    return `PKR ${amount.toLocaleString()}`;
   };
 
   return (
@@ -172,6 +177,7 @@ const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
         addExpense,
         addBudget,
         updateBudget,
+        deleteBudget,
         deleteExpense,
         getTotalExpenses,
         getExpensesByCategory,

@@ -21,13 +21,12 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { useState } from "react";
 import { format } from "date-fns";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 
-export default function Settings() {
+export default function Data() {
   const { expenses, budgets, reset, getCategories } = useExpense();
-  const { theme, toggleTheme, colors } = useTheme();
+  const { theme, colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
-  const insets = useSafeAreaInsets();
 
   const generatePDFContent = () => {
     const categories = getCategories();
@@ -252,186 +251,135 @@ export default function Settings() {
     );
   };
 
-  const renderSettingItem = (
-    iconName: keyof typeof MaterialIcons.glyphMap,
+  const renderActionCard = (
+    icon: keyof typeof MaterialIcons.glyphMap,
     title: string,
-    subtitle: string = "",
+    description: string,
     onPress: () => void,
-    type: "default" | "danger" = "default"
+    gradient: [string, string],
+    delay: number
   ) => (
-    <BlurView
-      intensity={30}
-      tint={theme}
-      className="rounded-2xl mb-3 overflow-hidden"
+    <Animated.View
+      entering={FadeInRight.delay(delay).springify()}
+      className="mb-4"
     >
       <TouchableOpacity
         onPress={onPress}
-        style={{ backgroundColor: colors.card }}
-        className="backdrop-blur-lg"
+        className="overflow-hidden rounded-2xl"
       >
-        <View className="p-4 flex-row items-center">
+        <BlurView intensity={30} tint={theme}>
           <LinearGradient
-            colors={
-              type === "danger"
-                ? [colors.danger, colors.danger]
-                : [colors.primary, colors.primary]
-            }
-            className="w-12 h-12 rounded-xl items-center justify-center mr-4"
+            colors={gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            className="p-6"
           >
-            <MaterialIcons name={iconName} size={24} color="white" />
+            <View className="flex-row items-center">
+              <View className="bg-white/20 w-12 h-12 rounded-xl items-center justify-center mr-4">
+                <MaterialIcons name={icon} size={24} color="white" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-white text-lg font-semibold mb-1">
+                  {title}
+                </Text>
+                <Text className="text-white/80 text-sm">{description}</Text>
+              </View>
+              <MaterialIcons
+                name="chevron-right"
+                size={24}
+                color="white"
+                style={{ opacity: 0.8 }}
+              />
+            </View>
           </LinearGradient>
-          <View className="flex-1">
-            <Text
-              style={{
-                color: type === "danger" ? colors.danger : colors.text,
-              }}
-              className="text-base font-semibold"
-            >
-              {title}
-            </Text>
-            {subtitle ? (
-              <Text style={{ color: colors.textSecondary }} className="text-sm">
-                {subtitle}
-              </Text>
-            ) : null}
-          </View>
-          <MaterialIcons
-            name="chevron-right"
-            size={24}
-            color={type === "danger" ? colors.danger : colors.textSecondary}
-          />
-        </View>
+        </BlurView>
       </TouchableOpacity>
-    </BlurView>
+    </Animated.View>
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{
-          paddingTop: Math.max(insets.top, 16),
-          paddingBottom: 32 + (Platform.OS === "ios" ? insets.bottom : 0),
-        }}
-      >
-        <View className="px-4 pb-24">
+    <SafeAreaView
+      edges={["top"]}
+      style={{ flex: 1, backgroundColor: colors.background }}
+    >
+      <ScrollView className="flex-1">
+        <View className="px-4 pb-32">
           {/* Header with gradient background */}
           <LinearGradient
-            colors={[`${colors.primary}20`, "transparent"]}
+            colors={["rgba(79, 70, 229, 0.1)", "transparent"]}
             className="absolute top-0 left-0 right-0 h-72 rounded-b-[40px]"
           />
 
-          {/* Header */}
-          <View className="mb-8">
-            <Text
-              style={{ color: colors.text }}
-              className="text-3xl font-bold mb-2"
-            >
-              Settings
-            </Text>
-            <Text style={{ color: colors.textSecondary }} className="text-lg">
-              Customize your experience
-            </Text>
+          {/* Large Data Icon */}
+          <View className="items-center mb-6 mt-4">
+            <BlurView intensity={30} tint={theme} className="rounded-full p-4">
+              <LinearGradient
+                colors={["#6366f1", "#818cf8"]}
+                className="rounded-full p-4"
+              >
+                <MaterialIcons name="import-export" size={48} color="white" />
+              </LinearGradient>
+            </BlurView>
           </View>
 
-          {/* Settings Sections */}
-          <View className="mb-8">
+          {/* Header */}
+          <Animated.View
+            entering={FadeInDown.delay(200).springify()}
+            className="mb-8"
+          >
             <Text
-              style={{ color: colors.textSecondary }}
-              className="text-sm font-medium mb-4 uppercase tracking-wider"
+              className="text-3xl font-bold mb-2"
+              style={{ color: colors.text }}
             >
               Data Management
             </Text>
-            {renderSettingItem(
+            <Text className="text-lg" style={{ color: colors.textSecondary }}>
+              Export, import, or clear your data
+            </Text>
+          </Animated.View>
+
+          {/* Actions */}
+          <View className="space-y-4">
+            {renderActionCard(
               "picture-as-pdf",
               "Export as PDF",
-              "Generate a detailed PDF report",
-              handleExportPDF
+              "Generate a detailed PDF report of your expenses",
+              handleExportPDF,
+              ["#6366f1", "#818cf8"],
+              400
             )}
-            {renderSettingItem(
+
+            {renderActionCard(
               "save",
               "Export Data",
               "Backup your expenses and budgets",
-              handleExportData
+              handleExportData,
+              ["#3b82f6", "#60a5fa"],
+              600
             )}
-            {renderSettingItem(
+
+            {renderActionCard(
               "restore",
               "Import Data",
-              "Restore from a backup",
-              handleImportData
+              "Restore from a backup file",
+              handleImportData,
+              ["#10b981", "#34d399"],
+              800
             )}
-            {renderSettingItem(
+
+            {renderActionCard(
               "delete-forever",
               "Clear All Data",
-              "Remove all your data",
+              "Remove all your data permanently",
               handleClearData,
-              "danger"
-            )}
-          </View>
-
-          <View className="mb-8">
-            <Text
-              style={{ color: colors.textSecondary }}
-              className="text-sm font-medium mb-4 uppercase tracking-wider"
-            >
-              Preferences
-            </Text>
-            {renderSettingItem(
-              "dark-mode",
-              "Theme",
-              theme === "dark" ? "Dark Mode" : "Light Mode",
-              toggleTheme
-            )}
-            {renderSettingItem(
-              "notifications",
-              "Notifications",
-              "Coming soon",
-              () =>
-                Alert.alert(
-                  "Coming Soon",
-                  "This feature will be available in a future update."
-                )
-            )}
-            {renderSettingItem("language", "Language", "Coming soon", () =>
-              Alert.alert(
-                "Coming Soon",
-                "This feature will be available in a future update."
-              )
-            )}
-          </View>
-
-          <View className="mb-8">
-            <Text
-              style={{ color: colors.textSecondary }}
-              className="text-sm font-medium mb-3 uppercase tracking-wider"
-            >
-              About
-            </Text>
-            {renderSettingItem("info", "Version", "1.0.0", () => {})}
-            {renderSettingItem(
-              "privacy-tip",
-              "Privacy Policy",
-              "Read our privacy policy",
-              () =>
-                Alert.alert(
-                  "Coming Soon",
-                  "This feature will be available in a future update."
-                )
-            )}
-            {renderSettingItem(
-              "description",
-              "Terms of Service",
-              "Read our terms of service",
-              () =>
-                Alert.alert(
-                  "Coming Soon",
-                  "This feature will be available in a future update."
-                )
+              ["#ef4444", "#f87171"],
+              1000
             )}
           </View>
         </View>
       </ScrollView>
 
+      {/* Loading Overlay */}
       {isLoading && (
         <View className="absolute inset-0 bg-black/50 z-50 items-center justify-center">
           <BlurView intensity={30} tint={theme} className="p-6 rounded-2xl">
@@ -442,6 +390,6 @@ export default function Settings() {
           </BlurView>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }

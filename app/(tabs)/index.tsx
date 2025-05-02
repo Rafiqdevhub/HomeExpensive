@@ -15,20 +15,15 @@ import Animated, {
   withDelay,
 } from "react-native-reanimated";
 import { useExpense } from "../../src/context/ExpenseContext";
-import { useUser } from "../../src/context/UserContext";
 import { format } from "date-fns";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Dashboard() {
   const { expenses, getTotalExpenses, budgets, formatCurrency } = useExpense();
-  const { userProfile } = useUser();
   const insets = useSafeAreaInsets();
 
   const recentExpenses = [...expenses]
@@ -99,55 +94,74 @@ export default function Dashboard() {
         }}
       >
         <View className="px-4 pb-32">
-          {/* Header with gradient background */}
+          {/* Enhanced Header with gradient background */}
           <LinearGradient
-            colors={["rgba(59, 130, 246, 0.1)", "transparent"]}
-            className="absolute top-0 left-0 right-0 h-72 rounded-b-[40px]"
+            colors={["rgba(59, 130, 246, 0.15)", "transparent"]}
+            className="absolute top-0 left-0 right-0 h-96 rounded-b-[40px]"
           />
 
-          <View className="mb-8">
-            <Animated.Text
-              style={welcomeStyle}
-              className="text-3xl font-bold text-gray-800"
-            >
-              Financial Overview
-            </Animated.Text>
-            <Animated.Text
-              style={subtextStyle}
-              className="text-gray-500 text-lg mb-1 mt-2"
-            >
-              {remainingBudget >= 0
-                ? `You have ${formatCurrency(remainingBudget)} left to spend`
-                : `You're over budget by ${formatCurrency(
-                    Math.abs(remainingBudget)
-                  )}`}
-            </Animated.Text>
-            <View className="flex-row items-center mt-1">
-              <MaterialIcons
-                name={expenseChange > 0 ? "trending-up" : "trending-down"}
-                size={16}
-                color={expenseChange > 0 ? "#ef4444" : "#22c55e"}
-                style={{ marginRight: 4 }}
-              />
-              <Animated.Text
-                style={subtextStyle}
-                className={`text-sm ${
-                  expenseChange > 0 ? "text-red-500" : "text-green-500"
-                }`}
+          {/* Large Expense Icon */}
+          <Animated.View
+            entering={FadeInDown.delay(200).springify()}
+            className="items-center mb-6"
+          >
+            <BlurView intensity={30} tint="light" className="rounded-full p-4">
+              <LinearGradient
+                colors={["#3b82f6", "#60a5fa"]}
+                className="rounded-full p-4"
               >
-                {Math.abs(expenseChange).toFixed(1)}%{" "}
-                {expenseChange > 0 ? "more" : "less"} spending than last month
-              </Animated.Text>
-            </View>
-            <Animated.Text
-              style={subtextStyle}
-              className="text-gray-400 text-base"
+                <MaterialIcons
+                  name="account-balance-wallet"
+                  size={48}
+                  color="white"
+                />
+              </LinearGradient>
+            </BlurView>
+          </Animated.View>
+
+          {/* Current Month's Total Spending */}
+          <Animated.View
+            entering={FadeInDown.delay(200).springify()}
+            className="items-center mb-6 mt-4"
+          >
+            <BlurView
+              intensity={30}
+              tint="light"
+              className="rounded-3xl overflow-hidden w-full"
             >
-              {budgets.length > 0
-                ? `Tracking ${budgets.length} budget categories`
-                : "Set up your first budget to start tracking"}
-            </Animated.Text>
-          </View>
+              <LinearGradient
+                colors={["#3b82f6", "#60a5fa"]}
+                className="p-6 items-center"
+              >
+                <Text className="text-white text-lg opacity-80 mt-4 mb-2">
+                  Current Month's Spending
+                </Text>
+                <Text className="text-white text-4xl font-bold mb-2">
+                  {formatCurrency(thisMonthExpenses)}
+                </Text>
+                <Text className="text-white text-base opacity-80">
+                  Monthly Budget: {formatCurrency(totalBudget)}
+                </Text>
+                <View className="w-full h-2 bg-white/20 rounded-full mt-4 overflow-hidden">
+                  <Animated.View
+                    entering={FadeInRight.delay(400).springify()}
+                    style={{
+                      width: `${Math.min(
+                        (thisMonthExpenses / totalBudget) * 100,
+                        100
+                      )}%`,
+                      height: "100%",
+                      backgroundColor:
+                        thisMonthExpenses > totalBudget ? "#ef4444" : "#4ade80",
+                    }}
+                  />
+                </View>
+                <Text className="text-white text-sm mt-2">
+                  {((thisMonthExpenses / totalBudget) * 100).toFixed(1)}% spent
+                </Text>
+              </LinearGradient>
+            </BlurView>
+          </Animated.View>
 
           {/* Summary Cards */}
           <View className="flex-row justify-between mb-8 gap-4">
@@ -300,7 +314,7 @@ export default function Dashboard() {
             className="mb-8"
           >
             <Text className="text-xl font-semibold text-gray-800 mb-4">
-              Quick Actions
+              Actions
             </Text>
             <View className="flex-row flex-wrap gap-4">
               <TouchableOpacity
@@ -326,10 +340,10 @@ export default function Dashboard() {
                       />
                     </View>
                     <Text className="text-white font-semibold mb-1">
-                      Add Expense
+                      New Expense
                     </Text>
                     <Text className="text-white text-xs opacity-80">
-                      Record your spending
+                      Quick add
                     </Text>
                   </LinearGradient>
                 </BlurView>
@@ -354,19 +368,17 @@ export default function Dashboard() {
                       <MaterialIcons name="pie-chart" size={24} color="white" />
                     </View>
                     <Text className="text-white font-semibold mb-1">
-                      Set Budget
+                      Budget
                     </Text>
                     <Text className="text-white text-xs opacity-80">
-                      {budgets.length === 0
-                        ? "Create your first budget"
-                        : "Manage your limits"}
+                      {budgets.length === 0 ? "Set up now" : "Manage limits"}
                     </Text>
                   </LinearGradient>
                 </BlurView>
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => router.push("/(tabs)/settings")}
+                onPress={() => router.push("/(tabs)/setting")}
                 className="flex-1 min-w-[150px]"
               >
                 <BlurView
@@ -402,7 +414,7 @@ export default function Dashboard() {
           >
             <View className="flex-row justify-between items-center mb-6">
               <Text className="text-xl font-semibold text-gray-800">
-                Recent Transactions
+                Recent
               </Text>
               <TouchableOpacity
                 onPress={() => router.push("/(tabs)/expenses")}
@@ -475,10 +487,10 @@ export default function Dashboard() {
                   <MaterialIcons name="receipt-long" size={32} color="white" />
                 </LinearGradient>
                 <Text className="text-gray-400 text-lg text-center">
-                  No transactions yet
+                  Start Fresh
                 </Text>
                 <Text className="text-gray-400 text-center mt-1">
-                  Add your first expense to get started
+                  Add your first transaction
                 </Text>
               </Animated.View>
             )}

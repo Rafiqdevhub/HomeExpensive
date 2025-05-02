@@ -117,6 +117,18 @@ export default function Expenses() {
             className="absolute top-0 left-0 right-0 h-72 rounded-b-[40px]"
           />
 
+          {/* Large Expense Icon */}
+          <View className="items-center mb-6 mt-4">
+            <BlurView intensity={30} tint="light" className="rounded-full p-4">
+              <LinearGradient
+                colors={["#ef4444", "#f87171"]}
+                className="rounded-full p-4"
+              >
+                <MaterialIcons name="receipt-long" size={48} color="white" />
+              </LinearGradient>
+            </BlurView>
+          </View>
+
           <Animated.View
             entering={FadeInDown.delay(200).springify()}
             className="mb-6"

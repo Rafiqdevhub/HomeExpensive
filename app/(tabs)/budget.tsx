@@ -10,6 +10,7 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
@@ -26,20 +27,52 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useExpense, CATEGORIES } from "../../src/context/ExpenseContext";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
+import { format } from "date-fns";
 
 export default function Budget() {
   const {
     budgets,
     addBudget,
+    updateBudget,
+    deleteBudget,
     getExpensesByCategory,
     getCategories,
     formatCurrency,
+    expenses,
   } = useExpense();
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0].name);
+  const [editingBudget, setEditingBudget] = useState<string | null>(null);
   const fabScale = useSharedValue(1);
   const categories = getCategories();
+
+  // Calculate total expenses this month
+  const thisMonth = new Date().getMonth();
+  const thisYear = new Date().getFullYear();
+  const thisMonthExpenses = expenses.reduce((sum, exp) => {
+    const expDate = new Date(exp.date);
+    return expDate.getMonth() === thisMonth &&
+      expDate.getFullYear() === thisYear
+      ? sum + exp.amount
+      : sum;
+  }, 0);
+
+  // Calculate last month's total expenses for comparison
+  const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+  const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+  const lastMonthExpenses = expenses.reduce((sum, exp) => {
+    const expDate = new Date(exp.date);
+    return expDate.getMonth() === lastMonth &&
+      expDate.getFullYear() === lastMonthYear
+      ? sum + exp.amount
+      : sum;
+  }, 0);
+
+  const spendingTrend =
+    lastMonthExpenses === 0
+      ? 0
+      : ((thisMonthExpenses - lastMonthExpenses) / lastMonthExpenses) * 100;
 
   const animateFAB = () => {
     fabScale.value = withSequence(withSpring(0.9), withSpring(1));
@@ -53,14 +86,49 @@ export default function Budget() {
   const handleAddBudget = () => {
     if (!amount) return;
 
-    addBudget({
-      amount: parseFloat(amount),
-      category,
-    });
+    if (editingBudget) {
+      updateBudget(category, parseFloat(amount));
+    } else {
+      addBudget({
+        amount: parseFloat(amount),
+        category,
+      });
+    }
 
     setModalVisible(false);
     setAmount("");
     setCategory(CATEGORIES[0].name);
+    setEditingBudget(null);
+  };
+
+  const handleEditBudget = (categoryName: string) => {
+    const budget = budgets.find((b) => b.category === categoryName);
+    if (budget) {
+      setCategory(categoryName);
+      setAmount(budget.amount.toString());
+      setEditingBudget(categoryName);
+      setModalVisible(true);
+    }
+  };
+
+  const handleDeleteBudget = (categoryName: string) => {
+    Alert.alert(
+      "Delete Budget",
+      "Are you sure you want to delete this budget?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            deleteBudget(categoryName);
+          },
+        },
+      ]
+    );
   };
 
   const handleCategoryPress = (categoryName: string) => {
@@ -91,6 +159,18 @@ export default function Budget() {
             className="absolute top-0 left-0 right-0 h-72 rounded-b-[40px]"
           />
 
+          {/* Large Budget Icon */}
+          <View className="items-center mb-6 mt-4">
+            <BlurView intensity={30} tint="light" className="rounded-full p-4">
+              <LinearGradient
+                colors={["#3b82f6", "#60a5fa"]}
+                className="rounded-full p-4"
+              >
+                <MaterialIcons name="account-balance" size={48} color="white" />
+              </LinearGradient>
+            </BlurView>
+          </View>
+
           <Animated.View
             entering={FadeInDown.delay(200).springify()}
             className="mb-6"
@@ -118,6 +198,12 @@ export default function Budget() {
                 </Text>
                 <Text className="text-white text-4xl font-bold">
                   {formatCurrency(totalBudget)}
+                </Text>
+                <Text className="text-white text-lg opacity-80 mt-3">
+                  This Month's Expenses: {formatCurrency(thisMonthExpenses)}
+                </Text>
+                <Text className="text-white text-lg opacity-80 mt-1">
+                  Spending Trend: {spendingTrend.toFixed(2)}%
                 </Text>
               </LinearGradient>
             </BlurView>
@@ -177,12 +263,12 @@ export default function Budget() {
                             {hasBudget && (
                               <Text className="text-gray-500 text-sm">
                                 {formatCurrency(utilization.amount)} /{" "}
-                                {formatCurrency(utilization.budgetAmount)}
+                                {formatCurrency(utilization.budgetAmount || 0)}
                               </Text>
                             )}
                           </View>
                         </View>
-                        {!hasBudget && (
+                        {!hasBudget ? (
                           <TouchableOpacity
                             onPress={() => {
                               setCategory(cat.name);
@@ -194,6 +280,25 @@ export default function Budget() {
                               Set Budget
                             </Text>
                           </TouchableOpacity>
+                        ) : (
+                          <View className="flex-row space-x-2">
+                            <TouchableOpacity
+                              onPress={() => handleEditBudget(cat.name)}
+                              className="bg-yellow-50 px-4 py-2 rounded-xl"
+                            >
+                              <Text className="text-yellow-600 font-medium">
+                                Edit
+                              </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              onPress={() => handleDeleteBudget(cat.name)}
+                              className="bg-red-50 px-4 py-2 rounded-xl"
+                            >
+                              <Text className="text-red-600 font-medium">
+                                Delete
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
                         )}
                       </View>
 
@@ -291,7 +396,7 @@ export default function Budget() {
                   <View className="bg-white rounded-t-3xl p-6 min-h-[60%]">
                     <View className="flex-row justify-between items-center mb-6">
                       <Text className="text-2xl font-bold text-gray-800">
-                        Set Budget
+                        {editingBudget ? "Edit Budget" : "Set Budget"}
                       </Text>
                       <TouchableOpacity
                         onPress={() => setModalVisible(false)}
@@ -398,7 +503,7 @@ export default function Budget() {
                         className="bg-blue-500 p-4 rounded-xl mt-6"
                       >
                         <Text className="text-white text-center text-lg font-semibold">
-                          Set Budget
+                          {editingBudget ? "Update Budget" : "Set Budget"}
                         </Text>
                       </TouchableOpacity>
                     </View>
